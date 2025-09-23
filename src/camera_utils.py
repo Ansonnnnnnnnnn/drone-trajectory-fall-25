@@ -69,3 +69,20 @@ def compute_ground_sampling_distance(
     gsd_x = footprint[0] / camera.image_size_x
     gsd_y = footprint[1] / camera.image_size_y
     return float(min(gsd_x, gsd_y))
+
+
+def project_image_point_to_world(camera: Camera, image_point: np.ndarray, distance_from_surface: float) -> np.ndarray:
+    """Project a 2D image point into the world coordinates.
+
+    Args:
+        camera: the camera model
+        image_point: the 2D image point
+        distance_from_surface: distance from the surface (in m). 
+
+    Returns:
+        [X, Y, Z] pixel coordinates corresponding to the 2D image point.
+    """
+    Z = distance_from_surface
+    X = (image_point[0] - camera.cx) * Z / camera.fx
+    Y = (image_point[1] - camera.cy) * Z / camera.fy
+    return np.array([X, Y, Z])
