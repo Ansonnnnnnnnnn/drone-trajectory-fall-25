@@ -48,8 +48,8 @@ def compute_image_footprint_on_surface(
     Returns:
         [footprint_x, footprint_y] in meters as a 2-element array.
     """
-    X = (distance_from_surface * camera.sensor_size_x_mm) / camera.fx
-    Y = (distance_from_surface * camera.sensor_size_y_mm) / camera.fy
+    X = (distance_from_surface * (camera.sensor_size_x_mm / 1000)) / camera.fx
+    Y = (distance_from_surface * (camera.sensor_size_y_mm / 1000)) / camera.fy
     return np.array([X, Y])
 
 
