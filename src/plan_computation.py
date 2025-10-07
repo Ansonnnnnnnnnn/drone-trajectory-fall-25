@@ -23,8 +23,8 @@ def compute_distance_between_images(
         The horizontal and vertical distance between images (as a 2-element array).
     """
     footprint = compute_image_footprint_on_surface(camera, dataset_spec.height)
-    distance_x = footprint[0] * (1 - dataset_spec.overlap / 100)
-    distance_y = footprint[1] * (1 - dataset_spec.sidelap / 100)
+    distance_x = footprint[0] * (1 - dataset_spec.overlap)
+    distance_y = footprint[1] * (1 - dataset_spec.sidelap)
     return np.array([distance_x, distance_y])
 
 
