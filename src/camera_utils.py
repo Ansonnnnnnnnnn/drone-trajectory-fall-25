@@ -15,10 +15,10 @@ def compute_focal_length_in_mm(camera: Camera) -> np.ndarray:
     Returns:
         [fx, fy] in mm as a 2-element array.
     """
-    # pixel_to_mm_x = camera.sensor_size_x_mm / camera.image_size_x_px
-    # pixel_to_mm_y = camera.sensor_size_y_mm / camera.image_size_y_px
+    pixel_to_mm_x = camera.sensor_size_x_mm / camera.image_size_x
+    pixel_to_mm_y = camera.sensor_size_y_mm / camera.image_size_y
 
-    # return np.array([camera.fx * pixel_to_mm_x, camera.fy * pixel_to_mm_y])
+    return np.array([camera.fx * pixel_to_mm_x, camera.fy * pixel_to_mm_y])
 
 
 def project_world_point_to_image(camera: Camera, world_point: np.ndarray) -> np.ndarray:
@@ -48,8 +48,9 @@ def compute_image_footprint_on_surface(
     Returns:
         [footprint_x, footprint_y] in meters as a 2-element array.
     """
-    X = (distance_from_surface * (camera.sensor_size_x_mm / 1000)) / camera.fx
-    Y = (distance_from_surface * (camera.sensor_size_y_mm / 1000)) / camera.fy
+    focal_in_mm = compute_focal_length_in_mm(camera)
+    X = (distance_from_surface * (camera.sensor_size_x_mm / 1000)) / (focal_in_mm[0] / 1000)
+    Y = (distance_from_surface * (camera.sensor_size_y_mm / 1000)) / (focal_in_mm[1] / 1000)
     return np.array([X, Y])
 
 
