@@ -31,8 +31,8 @@ def project_world_point_to_image(camera: Camera, world_point: np.ndarray) -> np.
     Returns:
         [u, v] pixel coordinates corresponding to the 3D world point.
     """
-    u = Camera.fx * (world_point[0] / world_point[2]) + Camera.cx
-    v = Camera.fy * (world_point[1] / world_point[2]) + Camera.cy
+    u = camera.fx * (world_point[0] / world_point[2]) + camera.cx
+    v = camera.fy * (world_point[1] / world_point[2]) + camera.cy
     return np.array([u, v])
 
 
