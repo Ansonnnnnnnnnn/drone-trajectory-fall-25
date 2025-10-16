@@ -58,4 +58,71 @@ def generate_photo_plan_on_grid(
         Scan plan as a list of waypoints.
 
     """
-    raise NotImplementedError()
+    max_distance = compute_distance_between_images(camera, dataset_spec)
+    waypoints = []
+    x_points = math.ceil(dataset_spec.scan_dimension_x / max_distance[0])
+    y_points = math.ceil(dataset_spec.scan_dimension_y / max_distance[1])
+    curr_x = 0
+    curr_y = 0
+    for i in range(0, y_points):
+        if i % 2 == 0:
+            for j in range(0, x_points):
+                waypoints.append(Waypoint(curr_x, curr_y, dataset_spec.height))
+                curr_x += max_distance[0]
+            curr_y += max_distance[1]
+            curr_x -= max_distance[0]
+        else:
+            for j in range(x_points):
+                waypoints.append(Waypoint(curr_x, curr_y, dataset_spec.height))
+                curr_x -= max_distance[0]
+            curr_y += max_distance[1]
+            curr_x += max_distance[0]
+    return waypoints
+
+
+def each_flight_time_computation(distance: float, velocity: float, acceleration: float) -> float:
+    """Compute the time required to fly a certain distance with given velocity and acceleration constraints.
+
+    Args:
+        distance: The distance to be flown (in meters).
+        velocity: The maximum velocity of the drone (in m/s).
+        acceleration: The acceleration and deceleration rate of the drone (in m/s^2).
+
+    Returns:
+        The time required to fly the given distance (in seconds).
+    """
+    if distance == 0:
+        return 0.0
+    time_to_accelerate = velocity / acceleration
+    distance_to_accelerate = 0.5 * velocity * time_to_accelerate
+    if 2 * distance_to_accelerate >= distance:
+        # If the distance is too short to reach maximum speed, just accelerate and then decelerate.
+        time_to_accelerate = math.sqrt(distance / acceleration)
+        return 2 * time_to_accelerate
+    else:
+        # Otherwise, we will accelerate to maximum speed, cruise, and then decelerate.
+        distance_to_cruise = distance - 2 * distance_to_accelerate
+        time_to_cruise = distance_to_cruise / velocity
+        return 2 * time_to_accelerate + time_to_cruise
+
+
+def full_flight_time_computation(camera: Camera, dataset_spec: DatasetSpec, velocity: float, acceleration: float) -> float:
+    """Compute the total time required to complete the photo plan.
+
+    Args:
+        camera: Camera model used for image capture.
+        dataset_spec: user specification for the dataset.
+        velocity: The cruising velocity of the drone (in m/s).
+        acceleration: The acceleration and deceleration rate of the drone (in m/s^2).
+
+    Returns:
+        The total time required to complete the photo plan (in seconds).
+    """
+    waypoints = generate_photo_plan_on_grid(camera, dataset_spec)
+    total_time = 0.0
+    for i in range(1, len(waypoints)):
+        start = waypoints[i - 1]
+        end = waypoints[i]
+        distance = math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2 + (end.z - start.z) ** 2)
+        total_time += each_flight_time_computation(distance, velocity, acceleration)
+    return total_time
