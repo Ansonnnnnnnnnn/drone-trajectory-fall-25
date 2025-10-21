@@ -74,19 +74,19 @@ def generate_photo_plan_on_grid(
             curr_x -= max_distance[0]
         else:
             for j in range(x_points):
-                waypoints.append(Waypoint(curr_x, curr_y, dataset_spec.height, min_speed))
+                waypoints.append(Waypoint(curr_x, curr_y, dataset_spec.height, min_speed, math.pi))  # Facing backwards (180 degrees is pi radians)
                 curr_x -= max_distance[0]
             curr_y += max_distance[1]
             curr_x += max_distance[0]
     return waypoints
 
 
-def each_flight_time_computation(distance: float, velocity: float, acceleration: float, start_speed: float, end_speed: float) -> float:
-    """Compute the time required to fly a certain distance with given velocity and acceleration constraints.
+def each_flight_time_computation(distance: float, max_speed: float, acceleration: float, start_speed: float, end_speed: float) -> float:
+    """Compute the time required to fly a certain distance with given max_speed and acceleration constraints.
 
     Args:
         distance: The distance to be flown (in meters).
-        velocity: The maximum velocity of the drone (in m/s).
+        max_speed: The maximum velocity of the drone (in m/s).
         acceleration: The acceleration and deceleration rate of the drone (in m/s^2).
         start_speed: The speed at the start of the segment (in m/s).
         end_speed: The speed at the end of the segment (in m/s).
@@ -96,10 +96,10 @@ def each_flight_time_computation(distance: float, velocity: float, acceleration:
     """
     if distance == 0:
         return 0.0
-    time_to_accelerate = (velocity - start_speed) / acceleration
-    time_to_decelerate = (velocity - end_speed) / acceleration
-    distance_to_accelerate = 0.5 * velocity * time_to_accelerate
-    distance_to_decelerate = 0.5 * velocity * time_to_decelerate
+    time_to_accelerate = (max_speed - start_speed) / acceleration
+    time_to_decelerate = (max_speed - end_speed) / acceleration
+    distance_to_accelerate = (0.5 * (max_speed - start_speed) + start_speed) * time_to_accelerate
+    distance_to_decelerate = (0.5 * (max_speed - end_speed) + end_speed) * time_to_decelerate
     if (distance_to_accelerate + distance_to_decelerate) >= distance:
         # If the distance is too short to reach maximum speed, just accelerate and then decelerate.
         peak_velocity = math.sqrt((2 * distance + (start_speed ** 2 / acceleration) + (end_speed ** 2 / acceleration)) / (2 / acceleration ))
@@ -109,7 +109,7 @@ def each_flight_time_computation(distance: float, velocity: float, acceleration:
     else:
         # Otherwise, we will accelerate to maximum speed, cruise, and then decelerate.
         distance_to_cruise = distance - distance_to_accelerate - distance_to_decelerate
-        time_to_cruise = distance_to_cruise / velocity
+        time_to_cruise = distance_to_cruise / max_speed
         return time_to_accelerate + time_to_cruise + time_to_decelerate
 
 
