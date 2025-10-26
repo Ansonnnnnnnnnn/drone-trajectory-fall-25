@@ -42,4 +42,12 @@ class Waypoint:
     Waypoints are positions where the drone should fly to and capture a photo.
     """
 
-    pass
+    def __init__(self, x, y, z, speed, yaw=0.0):
+        self.x = x  # X coordinate of the waypoint (in meters)
+        self.y = y  # Y coordinate of the waypoint (in meters)
+        self.z = z  # Z coordinate of the waypoint (in meters)
+        self.speed = speed  # Speed at the waypoint (in meters/second)
+        self.yaw = yaw  # Yaw angle at the waypoint (in radians)
+    
+    def __repr__(self):
+        return f"Waypoint(x={self.x}, y={self.y}, z={self.z}, speed={self.speed}, yaw={self.yaw})"
