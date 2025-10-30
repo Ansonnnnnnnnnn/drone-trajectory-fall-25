@@ -113,7 +113,7 @@ def each_flight_time_computation(distance: float, max_speed: float, acceleration
         return time_to_accelerate + time_to_cruise + time_to_decelerate
 
 
-def full_flight_time_computation(camera: Camera, dataset_spec: DatasetSpec, velocity: float, acceleration: float):
+def full_flight_time_computation(camera: Camera, dataset_spec: DatasetSpec, velocity: float, acceleration: float) -> tuple[list[float], float]:
     """Compute the total time required to complete the photo plan.
 
     Args:
@@ -135,4 +135,4 @@ def full_flight_time_computation(camera: Camera, dataset_spec: DatasetSpec, velo
         new_time = each_flight_time_computation(distance, velocity, acceleration, start.speed, end.speed)
         times.append(new_time)
         total_time += new_time
-    return times, total_time
+    return (times, total_time)
